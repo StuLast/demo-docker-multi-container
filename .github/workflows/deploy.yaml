@@ -10,11 +10,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build -t stulast/demo-docker-app -f Dockerfile.dev .
-      - run: docker run  -e CI=true stulast/demo-docker-app npm test
+      - name: worker_test
+        - run: docker build -t stulast/worker -f Dockerfile.dev ./worker
+        - run: docker run  -e CI=true stulast/worker npm test
+      
+      - name: client_test
+        - run: docker build -t stulast/client -f client/Dockerfile.dev ./client
+        - run: docker run  -e CI=true stulast/tesdt npm test
 
-      - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git'
+      - name: api_test
+        - run: docker build -t stulast/api -f client/Dockerfile.dev ./api
+        - run: docker run  -e CI=true stulast/api npm test
+      
+
+
+      # - name: Generate deployment package
+      #   run: zip -r deploy.zip . -x '*.git'
 
       # - name: Deploy to EBS
       #   uses: einaregilsson/beanstalk-deploy@v20
